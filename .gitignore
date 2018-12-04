@@ -1,2 +1,3 @@
 *.db
 go-user-ms
+vendor/
