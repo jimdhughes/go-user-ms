@@ -17,7 +17,7 @@ func InitializeHttpServer() {
 
 func InitializeDatabase() {
 	DB = &DBClient{}
-	DB.Initialize("bolt.db")
+	DB.Initialize("./data/bolt.db")
 }
 
 func InitializeTokenService() {

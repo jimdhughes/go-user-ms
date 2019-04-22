@@ -1,3 +1,4 @@
 *.db
 go-user-ms
 vendor/
+main

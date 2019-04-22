@@ -8,9 +8,9 @@ import (
 func TestMain(m *testing.M) {
 	DB = &DBClient{}
 	TS = &TokenService{}
-	DB.Initialize("./bolt-test.db")
+	DB.Initialize("./data/bolt-test.db")
 	retCode := m.Run()
-	os.Remove("./bolt-test.db")
+	os.Remove("./data/bolt-test.db")
 	os.Exit(retCode)
 }
 

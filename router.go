@@ -29,7 +29,7 @@ func InitRouter() {
 	r.HandleFunc("/register", HandleRegistration).Methods("POST")
 	r.HandleFunc("/validateToken", HandleValidateToken).Methods("POST")
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
-	log.Panic(http.ListenAndServe(":8080", loggedRouter))
+	log.Panic(http.ListenAndServe(":8081", loggedRouter))
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +53,7 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&user)
 	if err != nil {
 		WriteError(w, http.StatusBadRequest, fmt.Errorf("Error Decoding User"))
+		return
 	}
 	success, err := DB.CreateUser(user)
 	if err != nil {
@@ -71,7 +72,7 @@ func HandleValidateToken(w http.ResponseWriter, r *http.Request) {
 	}
 	payload, err := TS.ValidateToken(Token.Token)
 	if err != nil {
-		fmt.Fprintf(w, "Error Decoding Token: %v", err.Error())
+		WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 	WriteResponse(w, http.StatusOK, payload)
