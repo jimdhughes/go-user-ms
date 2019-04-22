@@ -18,4 +18,5 @@ Make a docker image using `make docker` investigate the makefile for more info
 
 ## Running on docker
 
+`make docker`
 `docker run -itd go-user-ms`
