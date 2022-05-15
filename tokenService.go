@@ -24,7 +24,7 @@ var TS ITokenService
 // Creates a new Token for a User
 func (t *TokenService) CreateToken(user User) (string, error) {
 	if (User{}) == user {
-		return "", fmt.Errorf("Cannot create token for empty user")
+		return "", fmt.Errorf("cannot create token for empty user")
 	}
 	safeUser := UserSafe{}
 	safeUser.ID = user.ID
@@ -55,14 +55,14 @@ func (t *TokenService) ValidateToken(tokenString string) (interface{}, error) {
 		return claims["sub"], nil
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-			return false, fmt.Errorf("Malformed Token")
+			return false, fmt.Errorf("malformed Token")
 		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
 			// Token is either expired or not active yet
-			return false, fmt.Errorf("Token is Expired")
+			return false, fmt.Errorf("token is Expired")
 		} else {
-			return false, fmt.Errorf("Couldn't handle the token")
+			return false, fmt.Errorf("could not handle the token")
 		}
 	} else {
-		return false, fmt.Errorf("Error handling token: %v", err)
+		return false, fmt.Errorf("error handling token: %v", err)
 	}
 }

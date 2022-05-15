@@ -1,0 +1,37 @@
+syntax="proto3";
+
+option go_package="github.com/jimdhughes/go-user-ms/protos/user";
+
+service UserService {
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+}
+
+message RegisterUserRequest {
+  string email=1;
+  string fullName = 2;
+  string password=3;
+  string validatePassword = 4;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message LoginUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RegisterUserResponse {
+  bool success = 1;
+}
+
+message LoginUserResponse {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool Valid = 1;
+}

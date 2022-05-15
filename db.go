@@ -67,7 +67,7 @@ func (db *DBClient) Close() {
 
 func (db *DBClient) CreateUser(u User) (bool, error) {
 	isNew, err := db.CheckUserIsNew(u.Email)
-	if err != nil || isNew == false {
+	if err != nil || !isNew {
 		return false, err
 	}
 	db.Open()

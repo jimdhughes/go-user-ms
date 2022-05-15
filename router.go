@@ -37,7 +37,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	if err != nil {
-		WriteError(w, http.StatusBadRequest, fmt.Errorf("Error Decoding User"))
+		WriteError(w, http.StatusBadRequest, fmt.Errorf("error decoding user"))
 	}
 	status, err := DB.Login(user.Email, user.Password)
 	if err != nil {
@@ -52,7 +52,7 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	if err != nil {
-		WriteError(w, http.StatusBadRequest, fmt.Errorf("Error Decoding User"))
+		WriteError(w, http.StatusBadRequest, fmt.Errorf("error decoding user"))
 		return
 	}
 	success, err := DB.CreateUser(user)
