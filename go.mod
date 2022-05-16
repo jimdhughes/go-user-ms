@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/gorilla/handlers v1.4.0
 	github.com/gorilla/mux v1.6.2
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
