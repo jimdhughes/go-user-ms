@@ -37,12 +37,12 @@ func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest)
 	if err != nil {
 		return &pb.ValidateTokenResponse{
 			Valid: false,
-			ID:    userSafe.ID,
-			Email: userSafe.Email,
 		}, err
 	}
 	return &pb.ValidateTokenResponse{
 		Valid: true,
+		ID:    userSafe.ID,
+		Email: userSafe.Email,
 	}, nil
 
 }
