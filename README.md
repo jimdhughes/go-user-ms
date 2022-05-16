@@ -10,7 +10,10 @@ It was built as a way for me to play with Go, Docker, and BoltDB - an embedded k
 
 Clone the repo and navigate to the repo
 `go build`
+
 `./go-user-ms`
+
+By default we will set up an http server. to change this, set the environment variable `USERMS_SERVER_TYPE=[grpc|http]`
 
 ## Docker
 

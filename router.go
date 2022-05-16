@@ -29,7 +29,11 @@ func InitRouter() {
 	r.HandleFunc("/register", HandleRegistration).Methods("POST")
 	r.HandleFunc("/validateToken", HandleValidateToken).Methods("POST")
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
-	log.Panic(http.ListenAndServe(":8080", loggedRouter))
+	httpPort := os.Getenv("USERMS_HTTP_PORT")
+	if httpPort == "" {
+		httpPort = ":8080"
+	}
+	log.Panic(http.ListenAndServe(httpPort, loggedRouter))
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {

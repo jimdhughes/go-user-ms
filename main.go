@@ -1,32 +1,37 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"net"
+	"os"
 
 	pb "github.com/jimdhughes/go-user-ms/proto"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	serverType := flag.String("serverType", "http", "start up an http or grpc server")
-	flag.Parse()
-	fmt.Println("server type:", *serverType)
+	serverType := os.Getenv("USERMS_SERVER_TYPE")
+	if serverType == "" {
+		serverType = "http"
+	}
 	InitializeDatabase()
 	InitializeTokenService()
-	if *serverType == "grpc" {
+	if serverType == "grpc" {
 		InitializeGRPCService()
 	}
-	if *serverType == "http" {
+	if serverType == "http" {
 		InitializeHttpServer()
 	}
 }
 
 func InitializeGRPCService() {
 	log.Println("initializing grpc service")
-	lis, err := net.Listen("tcp", ":3031")
+	grpcPort := os.Getenv("USERMS_GRPC_PORT")
+	if grpcPort == "" {
+		grpcPort = ":50051"
+	}
+
+	lis, err := net.Listen("tcp", grpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -44,7 +49,7 @@ func InitializeHttpServer() {
 }
 
 func InitializeDatabase() {
-	log.Println("initializing databaase")
+	log.Println("initializing database")
 	DB = &DBClient{}
 	DB.Initialize("./data/bolt.db")
 }
