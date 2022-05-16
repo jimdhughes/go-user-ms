@@ -37,7 +37,7 @@ func TestValidateTokenFromInvalidToken(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected an error to be thrown as token is not valid")
 	}
-	if payload != nil {
+	if payload.ID != "" || payload.Email != "" {
 		t.Errorf("Expected no user to be returned")
 	}
 }
@@ -61,7 +61,7 @@ func TestValidateTokenFromValidToken(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if payload == nil {
+	if payload.Email == "" {
 		t.Error("Expected to get a payload, got none")
 	}
 }

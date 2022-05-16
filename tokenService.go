@@ -14,7 +14,7 @@ const (
 
 type ITokenService interface {
 	CreateToken(user User) (string, error)
-	ValidateToken(token string) (interface{}, error)
+	ValidateToken(token string) (UserSafe, error)
 }
 
 type TokenService struct{}
@@ -43,26 +43,34 @@ func (t *TokenService) CreateToken(user User) (string, error) {
 	return tokenString, nil
 }
 
-func (t *TokenService) ValidateToken(tokenString string) (interface{}, error) {
+func (t *TokenService) ValidateToken(tokenString string) (UserSafe, error) {
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		return nil, err
+		return UserSafe{}, err
 	}
 	if token.Valid {
-		return claims["sub"], nil
+		//TODO: get rid of the sub - parse what we expect to see
+		var userSafe UserSafe
+		data := claims["sub"].(map[string]interface{})
+		userSafe.ID = data["id"].(string)
+		userSafe.Email = data["email"].(string)
+		if err != nil {
+			return UserSafe{}, fmt.Errorf("malformed sub string")
+		}
+		return userSafe, nil
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-			return false, fmt.Errorf("malformed Token")
+			return UserSafe{}, fmt.Errorf("malformed Token")
 		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
 			// Token is either expired or not active yet
-			return false, fmt.Errorf("token is Expired")
+			return UserSafe{}, fmt.Errorf("token is Expired")
 		} else {
-			return false, fmt.Errorf("could not handle the token")
+			return UserSafe{}, fmt.Errorf("could not handle the token")
 		}
 	} else {
-		return false, fmt.Errorf("error handling token: %v", err)
+		return UserSafe{}, fmt.Errorf("error handling token: %v", err)
 	}
 }

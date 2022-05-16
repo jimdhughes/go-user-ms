@@ -34,4 +34,6 @@ message LoginUserResponse {
 
 message ValidateTokenResponse {
   bool Valid = 1;
+  string ID = 2;
+  string Email = 3;
 }

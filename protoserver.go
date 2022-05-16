@@ -33,10 +33,12 @@ func (s *server) LoginUser(ctx context.Context, in *pb.LoginUserRequest) (*pb.Lo
 }
 
 func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
-	_, err := TS.ValidateToken(in.Token)
+	userSafe, err := TS.ValidateToken(in.Token)
 	if err != nil {
 		return &pb.ValidateTokenResponse{
 			Valid: false,
+			ID:    userSafe.ID,
+			Email: userSafe.Email,
 		}, err
 	}
 	return &pb.ValidateTokenResponse{
