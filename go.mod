@@ -7,7 +7,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/gorilla/handlers v1.4.0
 	github.com/gorilla/mux v1.6.2
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.1.0
 	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.27.1
 )
