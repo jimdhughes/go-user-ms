@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 
 	pb "github.com/jimdhughes/go-user-ms/proto"
 )
@@ -28,6 +30,10 @@ func (s *server) RegisterUser(ctx context.Context, in *pb.RegisterUserRequest) (
 
 func (s *server) LoginUser(ctx context.Context, in *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	token, err := DB.Login(in.Email, in.Password)
+	if err != nil {
+		log.Println(err)
+		return nil, errors.New("invalid username/password combination")
+	}
 	return &pb.LoginUserResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
@@ -35,6 +41,9 @@ func (s *server) LoginUser(ctx context.Context, in *pb.LoginUserRequest) (*pb.Lo
 }
 
 func (s *server) ValidateAccessToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+	if in.AccessToken == "" {
+		return nil, errors.New("no access token provided")
+	}
 	userSafe, err := TS.ValidateAccessToken(in.AccessToken)
 	if err != nil {
 		return &pb.ValidateTokenResponse{
@@ -49,6 +58,9 @@ func (s *server) ValidateAccessToken(ctx context.Context, in *pb.ValidateTokenRe
 }
 
 func (s *server) RefreshAccessToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.RefreshAccessTokenResponse, error) {
+	if in.RefreshToken == "" {
+		return nil, errors.New("no refresh token provided")
+	}
 	userId, err := TS.ValidateRefreshToken(in.RefreshToken)
 	if err != nil {
 		return nil, err

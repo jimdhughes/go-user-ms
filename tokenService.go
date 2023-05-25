@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -93,6 +94,9 @@ func (t *TokenService) ValidateRefreshToken(refreshToken string) (string, error)
 		return "", err
 	}
 	if token.Valid {
+		if reflect.TypeOf(claims["sub"]) != reflect.TypeOf("") {
+			return "", fmt.Errorf("malformed sub string")
+		}
 		userId := claims["sub"].(string)
 		return userId, nil
 	}
@@ -110,6 +114,9 @@ func (t *TokenService) ValidateAccessToken(tokenString string) (UserSafe, error)
 	if token.Valid {
 		//TODO: get rid of the sub - parse what we expect to see
 		var userSafe UserSafe
+		if reflect.TypeOf(claims["sub"]) != reflect.TypeOf(map[string]interface{}{}) {
+			return UserSafe{}, fmt.Errorf("malformed sub string")
+		}
 		data := claims["sub"].(map[string]interface{})
 		userSafe.ID = data["id"].(string)
 		userSafe.Email = data["email"].(string)

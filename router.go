@@ -105,6 +105,10 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp, err := TS.GenerateTokenPairForUser(user)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+		return
+	}
 	WriteResponse(w, http.StatusOK, resp)
 }
 
