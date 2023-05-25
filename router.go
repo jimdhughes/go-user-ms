@@ -19,8 +19,12 @@ type ApiStandardResponse struct {
 	Payload interface{} `json:"payload"`
 }
 
-type TokenPayload struct {
-	Token string `json:"token"`
+type AccessTokenPayload struct {
+	AccessToken string `json:"token"`
+}
+
+type RefreshTokenPayload struct {
+	RefreshToken string `json:"refreshToken"`
 }
 
 func InitRouter() {
@@ -28,6 +32,7 @@ func InitRouter() {
 	r.HandleFunc("/login", HandleLogin).Methods("POST")
 	r.HandleFunc("/register", HandleRegistration).Methods("POST")
 	r.HandleFunc("/validateToken", HandleValidateToken).Methods("POST")
+	r.HandleFunc("/refreshToken", HandleRefreshToken).Methods("POST")
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	httpPort := os.Getenv("USERMS_HTTP_PORT")
 	if httpPort == "" {
@@ -68,18 +73,43 @@ func HandleRegistration(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleValidateToken(w http.ResponseWriter, r *http.Request) {
-	var Token TokenPayload
+	var Token AccessTokenPayload
 	err := json.NewDecoder(r.Body).Decode(&Token)
 	if err != nil {
 		fmt.Fprintf(w, "Error Decoding Body: %v", err.Error())
 		return
 	}
-	payload, err := TS.ValidateToken(Token.Token)
+	payload, err := TS.ValidateAccessToken(Token.AccessToken)
 	if err != nil {
 		WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 	WriteResponse(w, http.StatusOK, payload)
+}
+
+func HandleRefreshToken(w http.ResponseWriter, r *http.Request) {
+	var Token AccessTokenPayload
+	err := json.NewDecoder(r.Body).Decode(&Token)
+	if err != nil {
+		fmt.Fprintf(w, "Error Decoding Body: %v", err.Error())
+		return
+	}
+	payload, err := TS.ValidateRefreshToken(Token.AccessToken)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	user, err := DB.GetUserById(payload)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	resp, err := TS.GenerateTokenPairForUser(user)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	WriteResponse(w, http.StatusOK, resp)
 }
 
 func WriteError(w http.ResponseWriter, statusCode int, err error) {
