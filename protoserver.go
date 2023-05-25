@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	pb "github.com/jimdhughes/go-user-ms/proto"
 )
@@ -28,12 +29,13 @@ func (s *server) RegisterUser(ctx context.Context, in *pb.RegisterUserRequest) (
 func (s *server) LoginUser(ctx context.Context, in *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	token, err := DB.Login(in.Email, in.Password)
 	return &pb.LoginUserResponse{
-		Token: token,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
 	}, err
 }
 
-func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
-	userSafe, err := TS.ValidateToken(in.Token)
+func (s *server) ValidateAccessToken(ctx context.Context, in *pb.ValidateTokenRequest) (*pb.ValidateTokenResponse, error) {
+	userSafe, err := TS.ValidateAccessToken(in.AccessToken)
 	if err != nil {
 		return &pb.ValidateTokenResponse{
 			Valid: false,
@@ -44,5 +46,26 @@ func (s *server) ValidateToken(ctx context.Context, in *pb.ValidateTokenRequest)
 		ID:    userSafe.ID,
 		Email: userSafe.Email,
 	}, nil
+}
 
+func (s *server) RefreshAccessToken(ctx context.Context, in *pb.RefreshTokenRequest) (*pb.RefreshAccessTokenResponse, error) {
+	userId, err := TS.ValidateRefreshToken(in.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+	if userId == "" {
+		return nil, fmt.Errorf("invalid refresh token")
+	}
+	user, err := DB.GetUserById(userId)
+	if err != nil {
+		return nil, err
+	}
+	tokenPair, err := TS.GenerateTokenPairForUser(user)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.RefreshAccessTokenResponse{
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+	}, nil
 }

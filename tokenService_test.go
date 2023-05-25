@@ -33,7 +33,7 @@ func TestCreateTokenFromValidUser(t *testing.T) {
 
 func TestValidateTokenFromInvalidToken(t *testing.T) {
 	token := "thisisNOTatoken"
-	payload, err := TS.ValidateToken(token)
+	payload, err := TS.ValidateAccessToken(token)
 	if err == nil {
 		t.Errorf("Expected an error to be thrown as token is not valid")
 	}
@@ -57,7 +57,7 @@ func TestValidateTokenFromValidToken(t *testing.T) {
 	if token == "" {
 		t.Error("Got an empty token when expecting a real token")
 	}
-	payload, err := TS.ValidateToken(token)
+	payload, err := TS.ValidateAccessToken(token)
 	if err != nil {
 		t.Error(err)
 	}

@@ -2,3 +2,4 @@
 go-user-ms
 vendor/
 main
+.DS_Store

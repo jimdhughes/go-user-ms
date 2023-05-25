@@ -4,7 +4,8 @@ option go_package="github.com/jimdhughes/go-user-ms/protos/user";
 
 service UserService {
   rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
-  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc ValidateAccessToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc RefreshAccessToken(RefreshTokenRequest) returns (RefreshAccessTokenResponse);
   rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
 }
 
@@ -16,7 +17,16 @@ message RegisterUserRequest {
 }
 
 message ValidateTokenRequest {
-  string token = 1;
+  string accessToken = 1;
+}
+
+message RefreshTokenRequest {
+  string refreshToken = 1;
+}
+
+message RefreshAccessTokenResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
 }
 
 message LoginUserRequest {
@@ -29,7 +39,8 @@ message RegisterUserResponse {
 }
 
 message LoginUserResponse {
-  string token = 1;
+  string accessToken = 1;
+  string refreshToken = 2;
 }
 
 message ValidateTokenResponse {

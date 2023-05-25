@@ -15,9 +15,10 @@ type IDBClient interface {
 	Open()
 	Close()
 	CreateUser(u User) (bool, error)
-	Login(email, password string) (string, error)
+	Login(email, password string) (*TokenPair, error)
 	CheckUserIsNew(email string) (bool, error)
 	GetUserByEmail(email string) (User, error)
+	GetUserById(id string) (User, error)
 }
 
 // Struct to handle the DB Connection
@@ -108,20 +109,20 @@ func (db *DBClient) CheckUserIsNew(email string) (bool, error) {
 	return true, nil
 }
 
-func (db *DBClient) Login(email, password string) (string, error) {
+func (db *DBClient) Login(email, password string) (*TokenPair, error) {
 	user, err := db.GetUserByEmail(email)
 	if err != nil {
-		return "Nope", err
+		return nil, err
 	}
 	err = user.CheckPassword(password)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	token, err := TS.CreateToken(user)
+	token, err := TS.GenerateTokenPairForUser(user)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return token, nil
+	return &token, nil
 }
 
 func (db *DBClient) GetUserByEmail(email string) (User, error) {
@@ -137,6 +138,30 @@ func (db *DBClient) GetUserByEmail(email string) (User, error) {
 		err := json.Unmarshal(userBytes, &user)
 		if err != nil {
 			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func (db *DBClient) GetUserById(id string) (User, error) {
+	db.Open()
+	defer db.Close()
+	user := User{}
+	err := db.client.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(usersBucketName))
+		c := b.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			err := json.Unmarshal(v, &user)
+			if err != nil {
+				return err
+			}
+			if user.ID == id {
+				return nil
+			}
 		}
 		return nil
 	})

@@ -1,4 +1,5 @@
 FROM scratch
+WORKDIR /
 ADD main /
 VOLUME /data
 EXPOSE 8080
